@@ -22,4 +22,21 @@ export interface EngineResponseEvent{
   price:number
 }
 
+export interface OrderFilledEvent{
+  type:"ORDER_FILLED",
+  userId:string,
+  symbol:string,
+  price:number,
+  amount:number,
+}
+
+export interface OrderRejectEvent{
+  type:"ORDER_REJECTED",
+  userId:string,
+  reason:string
+}
+
+export type EngineResponse=OrderFilledEvent|OrderRejectEvent
+
+
 export type TradeEvent=PriceEvent|CreateOrderEvent;
