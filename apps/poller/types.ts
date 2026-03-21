@@ -1,8 +1,8 @@
 export interface BinanceTradingMessage{
-  event:string;
-  event_time:number;
-  symbol:string;
-  price:string;
+  e:string; //event
+  E:number; //event_time
+  s:string; //symbol
+  p:string; //price
 }
 
 export interface PriceEvent{

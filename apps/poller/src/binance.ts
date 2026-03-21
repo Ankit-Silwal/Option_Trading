@@ -13,13 +13,13 @@ export function startBinance():void{
     try{
       const msg:BinanceTradingMessage=JSON.parse(data.toString());
       
-      const price=parseFloat(msg.price);
+      const price=parseFloat(msg.p);
 
       if(isNaN(price)) return;
 
       const event:PriceEvent={
         type:"PRICE_UPDATE",
-        symbol:msg.symbol,
+        symbol:msg.s,
         price,
         timestamp:Date.now()
       }
@@ -38,7 +38,7 @@ export function startBinance():void{
 
       console.log(`${event.symbol}:${event.price}`)
     }catch(err){
-      console.log(`An error occured as `,err);
+      console.log(`An error occurred as `,err);
     }
   })
 
@@ -48,7 +48,7 @@ export function startBinance():void{
   })
 
   ws.on("error",(err)=>{
-    console.log(`An error occured as ${err}`)
+    console.log(`An error occurred as ${err}`)
   })
 
 }
