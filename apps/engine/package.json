@@ -11,8 +11,10 @@
     "dev": "tsx src/index.ts"
   },
   "dependencies": {
+    "@option_trading/shared": "*",
     "@types/node": "^22.19.15",
-    "ioredis": "^5.10.1"
+    "ioredis": "^5.10.1",
+    "tsx": "^4.21.0"
   },
   "devDependencies": {
     "typescript": "^5.9.2"
