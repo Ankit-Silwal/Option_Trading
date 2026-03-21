@@ -2,6 +2,7 @@ import { parseFields } from "./parser";
 import { redis } from "./redis";
 import { updatePrice,getPrice, getBalance, updateBalance } from "./state";
 import type { CreateOrderEvent, PriceEvent } from "@option_trading/shared";
+import { updatePosition } from "./state";
 export async function startConsumer(){
   console.log("Engine listening to the stream sir..")
 
@@ -76,6 +77,7 @@ export async function startConsumer(){
             continue;
           }
           updateBalance(event.userId,balance-cost);
+          updatePosition(event.userId,event.symbol,event.amount)
           await redis.xadd(
             "engine-response",
             "*",
@@ -93,6 +95,23 @@ export async function startConsumer(){
         }
         if(event.side==="SELL"){
           updateBalance(event.userId,balance+cost);
+          updatePosition(event.userId,event.symbol,event.amount);
+
+          await redis.xadd(
+            "engine-response",
+            "*",
+            "type",
+            "ORDER_FILLED",
+            "userId",
+            event.userId,
+            "symbol",
+            event.symbol,
+            "price",
+            currentPrice.toString(),
+            "amount",
+            event.amount.toString()
+          )
+
           console.log(`Sell executed.New balance:${balance+cost}`)
         }
       }
