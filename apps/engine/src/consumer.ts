@@ -1,6 +1,6 @@
 import { parseFields } from "./parser";
 import { redis } from "./redis";
-import { updatePrice,getPrice } from "./state";
+import { updatePrice,getPrice, getBalance, updateBalance } from "./state";
 import type { CreateOrderEvent, PriceEvent } from "@option_trading/shared";
 export async function startConsumer(){
   console.log("Engine listening to the stream sir..")
@@ -48,8 +48,22 @@ export async function startConsumer(){
           continue;
         }
 
+        const balance=getBalance(event.userId);
+        const cost=currentPrice*event.amount
+
         console.log(`Order received:${event.side} ${event.amount} ${event.symbol}`);        
-        console.log(`Execute at price ${currentPrice} for user ${event.userId}`)
+        if(event.side==="BUY"){
+          if(balance<cost){
+            console.log("Insufficient balance");
+            continue;
+          }
+          updateBalance(event.userId,balance-cost);
+          console.log(`Buy executed,new balance:${balance-cost}`)
+        }
+        if(event.side==="SELL"){
+          updateBalance(event.userId,balance+cost);
+          console.log(`Sell executed.New balance:${balance+cost}`)
+        }
       }
     }
   }
