@@ -7,3 +7,13 @@ generator client {
 datasource db {
   provider = "postgresql"
 }
+
+model Trade{
+  id Int @id @default(autoincrement())
+  userId Int
+  symbol String
+  side String
+  price Float
+  quantity Float
+  created_at DateTime @default(now())
+}
