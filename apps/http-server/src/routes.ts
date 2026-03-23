@@ -8,7 +8,7 @@ router.post("/trade",async (req,res)=>{
   try{
     const data=tradeSchema.parse(req.body);
 
-    await redis.xadd(
+    await redis.xadd( 
       "trade",
       "*",
       "type",
@@ -17,9 +17,14 @@ router.post("/trade",async (req,res)=>{
       data.userId,
       "symbol",
       data.symbol,
-      "amount",
-      data.amount.toString()
+      "side",
+      data.side,
+      "price",
+      data.price.toString(),
+      "quantity",
+      data.quantity.toString()
     );
+    console.log(`Order received: ${data.side} ${data.quantity} ${data.symbol} @ ${data.price}`);
     res.json({
       status:"Order received"
     })

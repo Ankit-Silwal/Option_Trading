@@ -16,6 +16,7 @@ const prisma=new PrismaClient({ adapter });
 async function start()
 {
   console.log("DB started")
+  let lastId = "0-0";
   while (true)
   {
     try
@@ -25,21 +26,33 @@ async function start()
         0,
         "STREAMS",
         "engine-response",
-        "$"
+        lastId
       );
 
       if (!response) continue;
       const [, messages] = response[0];
-      for (const [, fields] of messages)
+      for (const message of messages)
       {
+        const [id, fields] = message;
+        lastId = id;
         const data: Record<string, string> = {};
         for (let i = 0; i < fields.length; i += 2)
         {
           data[fields[i]] = fields[i + 1];
         }
-        console.log("📥 Event received:", data);
-        if (data.type === "ORDER_FILLED")
-        {
+        console.log("Event received:", data);
+        if(!data.type){
+          console.log("Missing type skipping");
+          continue;
+        }
+        if (data.type === "ORDER_FILLED") {
+          console.log(`Processing ORDER_FILLED: ${data.userId} ${data.symbol}`);
+          
+          if(!data.userId || !data.symbol || !data.price || !data.quantity || !data.side){
+            console.log("Continue due to missing fields");
+            continue;
+          }
+
           await prisma.trade.create({
             data: {
               userId: Number(data.userId),

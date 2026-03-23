@@ -12,7 +12,7 @@ export interface CreateOrderEvent{
   userId:string,
   symbol:string,
   side:"BUY"|"SELL",
-  amount:number
+  quantity:number
 }
 
 export interface EngineResponseEvent{
@@ -26,8 +26,9 @@ export interface OrderFilledEvent{
   type:"ORDER_FILLED",
   userId:string,
   symbol:string,
+  side: "BUY" | "SELL",
   price:number,
-  amount:number,
+  quantity:number,
 }
 
 export interface OrderRejectEvent{
