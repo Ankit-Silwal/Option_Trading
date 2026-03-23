@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "Trade" ADD COLUMN     "orderId" INTEGER NOT NULL DEFAULT 3;

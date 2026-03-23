@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "Trade" ALTER COLUMN "orderId" DROP DEFAULT;

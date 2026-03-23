@@ -1,0 +1,21 @@
+{
+  "name": "ws-server",
+  "version": "1.0.0",
+  "description": "",
+  "license": "ISC",
+  "type": "module",
+  "main": "index.ts",
+  "scripts": {
+    "dev": "tsx src/index.ts",
+    "client": "tsx src/client.ts"
+  },
+  "dependencies": {
+    "ioredis": "^5.10.1",
+    "ws": "^8.18.0"
+  },
+  "devDependencies": {
+    "@types/ws": "^8.5.12",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.2"
+  }
+}

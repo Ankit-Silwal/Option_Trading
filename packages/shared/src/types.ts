@@ -9,6 +9,7 @@ export interface PriceEvent{
 
 export interface CreateOrderEvent{
   type:"CREATE_ORDER",
+  orderId:string,
   userId:string,
   symbol:string,
   side:"BUY"|"SELL",
@@ -24,6 +25,7 @@ export interface EngineResponseEvent{
 
 export interface OrderFilledEvent{
   type:"ORDER_FILLED",
+  orderId:string,
   userId:string,
   symbol:string,
   side: "BUY" | "SELL",
@@ -33,6 +35,7 @@ export interface OrderFilledEvent{
 
 export interface OrderRejectEvent{
   type:"ORDER_REJECTED",
+  orderId:string,
   userId:string,
   reason:string
 }

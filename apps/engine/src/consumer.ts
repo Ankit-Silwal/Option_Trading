@@ -4,7 +4,7 @@ import { updatePrice, getPrice, getBalance, updateBalance, updatePosition } from
 import type { CreateOrderEvent, PriceEvent } from "@option_trading/shared";
 
 export async function startConsumer() {
-  console.log("Engine listening to the stream sir..");
+  console.log("Engine listening to the stream...");
   let lastId = "0-0";
 
   while (true) {
@@ -38,12 +38,14 @@ export async function startConsumer() {
         }
 
         if (parsed.type === "CREATE_ORDER") {
-          console.log(`Processing CREATE_ORDER: ${parsed.userId} ${parsed.side} ${parsed.quantity} ${parsed.symbol}`);
-          
+          console.log(`Processing CREATE_ORDER: ${parsed.orderId}`);
+
           try {
             const quantity = parseFloat(parsed.quantity);
+
             const event: CreateOrderEvent = {
               type: "CREATE_ORDER",
+              orderId: parsed.orderId, // added
               userId: parsed.userId,
               symbol: parsed.symbol,
               side: parsed.side as "BUY" | "SELL",
@@ -53,16 +55,13 @@ export async function startConsumer() {
             const currentPrice = getPrice(event.symbol);
 
             if (!currentPrice) {
-              console.log(`No price for ${event.symbol}`);
               await redis.xadd(
                 "engine-response",
                 "*",
-                "type",
-                "ORDER_REJECTED",
-                "userId",
-                event.userId,
-                "reason",
-                "NO_PRICE"
+                "type", "ORDER_REJECTED",
+                "orderId", event.orderId, // added
+                "userId", event.userId,
+                "reason", "NO_PRICE"
               );
               continue;
             }
@@ -72,60 +71,46 @@ export async function startConsumer() {
 
             if (event.side === "BUY") {
               if (balance < cost) {
-                console.log(`Insufficient balance for ${event.userId}`);
                 await redis.xadd(
                   "engine-response",
                   "*",
-                  "type",
-                  "ORDER_REJECTED",
-                  "userId",
-                  event.userId,
-                  "reason",
-                  "INSUFFICIENT_BALANCE"
+                  "type", "ORDER_REJECTED",
+                  "orderId", event.orderId, // added
+                  "userId", event.userId,
+                  "reason", "INSUFFICIENT_BALANCE"
                 );
                 continue;
               }
+
               updateBalance(event.userId, balance - cost);
               updatePosition(event.userId, event.symbol, event.quantity);
-              
-              await redis.xadd(
-                "engine-response",
-                "*",
-                "type",
-                "ORDER_FILLED",
-                "userId",
-                event.userId,
-                "symbol",
-                event.symbol,
-                "side",
-                event.side,
-                "price",
-                currentPrice.toString(),
-                "quantity",
-                event.quantity.toString()
-              );
-              console.log(`Order filled: ${event.userId} BUY ${event.quantity} ${event.symbol} @ ${currentPrice}`);
-            } else if (event.side === "SELL") {
-              updateBalance(event.userId, balance + cost);
-              updatePosition(event.userId, event.symbol, -event.quantity); 
 
               await redis.xadd(
                 "engine-response",
                 "*",
-                "type",
-                "ORDER_FILLED",
-                "userId",
-                event.userId,
-                "symbol",
-                event.symbol,
-                "side",
-                event.side,
-                "price",
-                currentPrice.toString(),
-                "quantity",
-                event.quantity.toString()
+                "type", "ORDER_FILLED",
+                "orderId", event.orderId, 
+                "userId", event.userId,
+                "symbol", event.symbol,
+                "side", event.side,
+                "price", currentPrice.toString(),
+                "quantity", event.quantity.toString()
               );
-              console.log(`Order filled: ${event.userId} SELL ${event.quantity} ${event.symbol} @ ${currentPrice}`);
+            } else if (event.side === "SELL") {
+              updateBalance(event.userId, balance + cost);
+              updatePosition(event.userId, event.symbol, -event.quantity);
+
+              await redis.xadd(
+                "engine-response",
+                "*",
+                "type", "ORDER_FILLED",
+                "orderId", event.orderId, 
+                "userId", event.userId,
+                "symbol", event.symbol,
+                "side", event.side,
+                "price", currentPrice.toString(),
+                "quantity", event.quantity.toString()
+              );
             }
           } catch (e) {
             console.error("Error processing CREATE_ORDER:", e);
