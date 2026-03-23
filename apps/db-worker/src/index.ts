@@ -82,6 +82,16 @@ async function start()
 
           console.log("Trade saved to DB");
         }
+
+        if(data.type==="ORDER_REJECTED"){
+          await prisma.trade.update({
+            where:{orderId:data.orderId},
+            data:{
+              status:"REJECTED"
+            }
+          })
+          console.log("UPdate order to rejected",data.orderId)
+        }
       }
     }
     catch (err)
