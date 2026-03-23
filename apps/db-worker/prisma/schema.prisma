@@ -10,11 +10,12 @@ datasource db {
 
 model Trade{
   id Int @id @default(autoincrement())
-  orderId String
+  orderId String @unique
   userId Int
   symbol String
   side String
   price Float
   quantity Float
+  status String
   created_at DateTime @default(now())
 }

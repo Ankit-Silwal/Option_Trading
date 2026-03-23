@@ -8,6 +8,13 @@ router.post("/trade",async (req,res)=>{
   try{
     const data=tradeSchema.parse(req.body);
     const orderId=randomUUID()
+    await redis.xadd(
+      "engine-response",
+      "*",
+      "type","ORDER_PENDING",
+      "orderId",orderId,
+      "userId",data.userId
+    )
     await redis.xadd( 
       "trade",
       "*",

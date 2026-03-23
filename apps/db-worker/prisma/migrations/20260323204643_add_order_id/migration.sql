@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "Trade" ADD COLUMN     "status" TEXT NOT NULL DEFAULT 'ORDER_FILLED';

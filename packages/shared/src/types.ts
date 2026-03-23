@@ -40,6 +40,12 @@ export interface OrderRejectEvent{
   reason:string
 }
 
+export interface OrderPendingEvent{
+  type:"ORDER_PENDING",
+  orderId:string,
+  userId:string
+}
+
 export type EngineResponse=OrderFilledEvent|OrderRejectEvent
 
 
