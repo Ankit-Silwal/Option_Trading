@@ -46,19 +46,21 @@ async function start()
           continue;
         }
         if(data.type==="ORDER_PENDING"){
-          await prisma.trade.create(
-            {
-              data:{
-                orderId:data.orderId,
-                userId:Number(data.userId),
-                symbol:"",
-                side:"",
-                price:0,
-                quantity:0,
-                status:"PENDING"
-              }
+          await prisma.trade.upsert({
+            where: {
+              orderId: data.orderId
+            },
+            update: {},
+            create: {
+              orderId: data.orderId,
+              userId: Number(data.userId),
+              symbol: "",
+              side: "",
+              price: 0,
+              quantity: 0,
+              status: "PENDING"
             }
-          )
+          });
         }
         if (data.type === "ORDER_FILLED") {
           console.log(`Processing ORDER_FILLED: ${data.userId} ${data.symbol}`);
@@ -68,9 +70,11 @@ async function start()
             continue;
           }
 
-          await prisma.trade.create({
+          await prisma.trade.update({
+            where: {
+              orderId: data.orderId
+            },
             data: {
-              orderId: data.orderId,
               userId: Number(data.userId),
               symbol: data.symbol,
               side: data.side,
